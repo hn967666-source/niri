@@ -1,0 +1,643 @@
+from pathlib import Path
+p = Path("/mnt/data/index.html")
+html = r'''<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0f19">
+  <title>Trọng Hiếu Phim - Rạp Phim Trực Tuyến</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            brand: {
+              red: '#FF2A54', gold: '#FFB800', cyan: '#00F2FE',
+              purple: '#7928CA', darkBg: '#0B0F19', darkCard: '#131B2E',
+              darkNav: '#0F172A'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: rgba(255,255,255,.88);
+      --text-main: #0f172a;
+      --border-color: rgba(148,163,184,.3);
+      --shadow-color: rgba(0,0,0,.08);
+    }
+    .dark {
+      --bg-gradient: linear-gradient(135deg,#090d16 0%,#0d1322 50%,#111827 100%);
+      --card-bg: rgba(19,27,46,.82);
+      --text-main: #f8fafc;
+      --border-color: rgba(255,255,255,.09);
+      --shadow-color: rgba(0,0,0,.4);
+    }
+    body { background:var(--bg-gradient); color:var(--text-main); min-height:100vh; transition:background .3s,color .3s; }
+    .glass-panel { background:var(--card-bg); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid var(--border-color); box-shadow:0 8px 32px var(--shadow-color); }
+    .glass-nav { backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); }
+    .text-gradient-primary { background:linear-gradient(135deg,#FF2A54,#FF7A00,#FFB800); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .text-gradient-cyan { background:linear-gradient(135deg,#00F2FE,#4FACFE); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .badge-gradient-hot { background:linear-gradient(135deg,#FF2A54,#FF7A00); }
+    .badge-gradient-hd { background:linear-gradient(135deg,#00F2FE,#0066FF); }
+    ::-webkit-scrollbar { width:8px;height:8px; }
+    ::-webkit-scrollbar-track { background:rgba(15,23,42,.5); }
+    ::-webkit-scrollbar-thumb { background:linear-gradient(#FF2A54,#7928CA);border-radius:4px; }
+    .movie-card { transition:transform .3s,box-shadow .3s; }
+    .movie-card:hover { transform:translateY(-7px);box-shadow:0 18px 35px -12px rgba(255,42,84,.4); }
+    .poster-img { transition:transform .5s; }
+    .movie-card:hover .poster-img { transform:scale(1.06); }
+    .poster-overlay { opacity:0;transition:opacity .25s; }
+    .movie-card:hover .poster-overlay,.movie-card:focus-within .poster-overlay { opacity:1; }
+    .custom-checkbox:checked + label { background:linear-gradient(135deg,#FF2A54,#7928CA);color:white;border-color:transparent; }
+    #firefly-layer { position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:30; }
+    .firefly { position:absolute;left:var(--x);top:var(--y);width:var(--size);height:var(--size);border-radius:50%;background:#fff7a8;box-shadow:0 0 5px 2px rgba(255,240,130,.7),0 0 12px 4px rgba(255,190,70,.3);opacity:.2;animation:drift var(--duration) ease-in-out var(--delay) infinite alternate; }
+    @keyframes drift { 0%{transform:translate(0,0) scale(.65);opacity:.12} 35%{opacity:.8} 100%{transform:translate(var(--move-x),var(--move-y)) scale(1.15);opacity:.35} }
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.firefly{display:none}}
+    #movieModal video { display:block; }
+    button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { outline:2px solid #00F2FE;outline-offset:3px; }
+  </style>
+</head>
+<body class="dark font-sans antialiased selection:bg-brand-red selection:text-white">
+  <div id="firefly-layer" aria-hidden="true"></div>
+
+  <header class="sticky top-0 z-40 w-full glass-nav bg-white/80 dark:bg-brand-darkNav/90 border-b border-gray-200 dark:border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 gap-4">
+        <a href="#" class="flex items-center gap-3 group" aria-label="Trọng Hiếu Phim - Trang chủ">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-red via-brand-purple to-brand-cyan flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform">
+            <i class="fa-solid fa-play text-xl ml-0.5"></i>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xl sm:text-2xl font-extrabold tracking-wider text-gradient-primary">TRỌNG<span class="text-gradient-cyan">HIẾU</span></span>
+            <span class="text-[10px] tracking-widest text-gray-500 dark:text-gray-400 uppercase font-semibold -mt-1">Rạp phim trực tuyến</span>
+          </div>
+        </a>
+        <div class="flex-1 max-w-xl mx-4 relative hidden sm:block">
+          <div class="relative group">
+            <input type="search" id="searchInput" placeholder="Tìm tên phim hoặc thể loại..." aria-label="Tìm kiếm phim" class="w-full py-3 pl-12 pr-10 text-sm bg-gray-100 dark:bg-slate-800/80 text-gray-900 dark:text-white rounded-2xl border border-gray-300 dark:border-white/10 focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/30 placeholder-gray-400">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <button id="clearSearchBtn" type="button" aria-label="Xóa tìm kiếm" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-red p-1"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-red/10 border border-brand-red/20 text-brand-red text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span><span id="movieCountBadge">Đang tải...</span>
+          </div>
+          <button id="themeToggleBtn" type="button" class="p-3 rounded-2xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-white/10" title="Chuyển giao diện sáng/tối" aria-label="Chuyển giao diện">
+            <i class="fa-solid fa-moon text-lg dark:hidden"></i><i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+          </button>
+        </div>
+      </div>
+      <div class="pb-4 sm:hidden relative">
+        <input type="search" id="searchInputMobile" placeholder="Tìm kiếm phim..." aria-label="Tìm kiếm phim trên điện thoại" class="w-full py-2.5 pl-10 pr-4 text-sm bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl border border-gray-300 dark:border-white/10 focus:outline-none focus:border-brand-red">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+      </div>
+    </div>
+  </header>
+
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="relative rounded-3xl overflow-hidden glass-panel shadow-2xl">
+      <div class="absolute inset-0">
+        <img id="heroBackdrop" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover blur-sm scale-105 opacity-30" alt="">
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-darkBg via-brand-darkBg/70 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-brand-darkBg via-brand-darkBg/80 to-transparent"></div>
+      </div>
+      <div class="relative z-10 p-6 sm:p-10 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="max-w-2xl space-y-4 text-center md:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-gradient-hot text-white text-xs font-bold uppercase tracking-wider"><i class="fa-solid fa-fire text-amber-300"></i> Phim nổi bật</div>
+          <h1 id="heroTitle" class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white">Avengers: Endgame</h1>
+          <p id="heroDesc" class="text-sm sm:text-base text-gray-300 line-clamp-3 leading-relaxed"></p>
+          <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+            <button id="heroPlayBtn" type="button" class="px-6 py-3.5 rounded-2xl badge-gradient-hot hover:opacity-90 text-white font-bold text-sm flex items-center gap-3 shadow-xl transition-transform hover:scale-105"><i class="fa-solid fa-play"></i> XEM NGAY</button>
+            <div class="flex items-center gap-3 text-xs text-gray-300 font-medium">
+              <span class="px-2.5 py-1 rounded-md bg-white/10 border border-white/20"><i class="fa-solid fa-star text-amber-400 mr-1"></i><span id="heroRating">8.4</span>/10</span>
+              <span class="px-2.5 py-1 rounded-md bg-white/10 border border-white/20" id="heroYear">2019</span>
+              <span class="px-2.5 py-1 rounded-md bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/30">Video theo file của bạn</span>
+            </div>
+          </div>
+        </div>
+        <div class="relative group hidden sm:block shrink-0">
+          <div class="absolute -inset-1 bg-gradient-to-r from-brand-red to-brand-purple rounded-2xl blur opacity-75"></div>
+          <img id="heroPoster" src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600&auto=format&fit=crop" class="relative w-48 sm:w-56 h-72 sm:h-80 object-cover rounded-2xl shadow-2xl border border-white/10" alt="Poster phim nổi bật">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <aside class="lg:col-span-1">
+        <div class="glass-panel rounded-3xl p-6 lg:sticky lg:top-28">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-white/10">
+            <h2 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-filter text-brand-red"></i> Lọc thể loại</h2>
+            <button id="resetFiltersBtn" type="button" class="text-xs text-gray-400 hover:text-brand-red flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Đặt lại</button>
+          </div>
+          <div id="genreCheckboxContainer" class="space-y-2 max-h-[380px] overflow-y-auto pr-2"></div>
+          <div class="mt-6 pt-4 border-t border-gray-200 dark:border-white/10">
+            <label for="sortBySelect" class="block text-xs font-semibold uppercase text-gray-400 mb-2">Sắp xếp theo</label>
+            <select id="sortBySelect" class="w-full py-2.5 px-3 text-xs bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 rounded-xl border border-gray-300 dark:border-white/10 focus:outline-none focus:border-brand-red">
+              <option value="default">Mặc định</option><option value="rating-desc">Đánh giá cao nhất</option><option value="year-desc">Năm phát hành mới nhất</option><option value="title-asc">Tên phim (A-Z)</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <section class="lg:col-span-3 space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/40 dark:bg-slate-800/30 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
+          <div>
+            <h3 class="text-xl font-extrabold flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-brand-red inline-block"></span> Danh sách phim</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="filterStatusText">Đang hiển thị tất cả phim</p>
+          </div>
+          <span class="text-xs text-gray-400"><i class="fa-solid fa-film mr-1"></i> Chọn một phim để xem chi tiết</span>
+        </div>
+        <div id="movieGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5 min-h-[200px]"></div>
+        <div id="noResultsState" class="hidden flex-col items-center justify-center py-16 px-4 text-center glass-panel rounded-3xl">
+          <div class="w-20 h-20 rounded-full bg-brand-red/10 flex items-center justify-center text-brand-red mb-4 text-3xl"><i class="fa-solid fa-film"></i></div>
+          <h4 class="text-lg font-bold">Không tìm thấy phim phù hợp!</h4>
+          <p class="text-xs text-gray-500 mt-1">Hãy thử từ khóa khác hoặc bỏ bộ lọc.</p>
+          <button id="clearAllFiltersBtn" type="button" class="mt-4 px-5 py-2.5 rounded-xl badge-gradient-hot text-white font-semibold text-xs">Xóa tất cả bộ lọc</button>
+        </div>
+        <div class="glass-panel rounded-3xl p-6">
+          <h3 class="text-base font-bold flex items-center gap-2 text-gradient-primary mb-4"><i class="fa-solid fa-trophy text-amber-400"></i> TOP PHIM ĐƯỢC XEM NHIỀU</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="topTrendingList"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- CỬA SỔ CHI TIẾT VÀ TRÌNH PHÁT VIDEO -->
+  <div id="movieModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-md"></div>
+    <div class="relative w-full max-w-5xl glass-panel bg-slate-900 text-white rounded-3xl overflow-hidden shadow-2xl border border-white/20 z-10 my-6 max-h-[94vh] flex flex-col">
+      <button id="closeModalBtn" type="button" aria-label="Đóng cửa sổ phim" class="absolute top-3 right-3 z-20 w-10 h-10 rounded-full bg-black/70 hover:bg-brand-red text-white flex items-center justify-center border border-white/20"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <div class="overflow-y-auto p-4 sm:p-7 space-y-6">
+        <div class="relative rounded-2xl overflow-hidden bg-black aspect-video max-h-[540px] border border-white/10">
+          <video id="modalVideo" class="w-full h-full object-contain bg-black" controls playsinline preload="metadata" poster="">
+            <source id="modalVideoSource" src="" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ phát video HTML5.
+          </video>
+          <button id="modalPlayTrailerBtn" type="button" aria-label="Phát video" class="absolute inset-0 m-auto w-16 h-16 rounded-full badge-gradient-hot flex items-center justify-center text-white text-2xl shadow-xl hover:scale-110 transition-transform"><i class="fa-solid fa-play ml-1"></i></button>
+          <div id="videoStatus" role="status" aria-live="polite" class="hidden absolute bottom-14 left-3 right-3 p-3 rounded-xl bg-black/85 text-white text-sm text-center"></div>
+          <div class="absolute bottom-3 left-3 flex gap-2 pointer-events-none"><span class="px-2.5 py-1 rounded bg-brand-red text-[11px] font-bold">VIDEO</span><span class="px-2.5 py-1 rounded bg-black/70 text-[11px] font-bold">Điều khiển trình duyệt</span></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="hidden md:block"><img id="modalPoster" src="" alt="Poster phim" class="w-full max-h-96 object-cover rounded-2xl shadow-xl border border-white/10"></div>
+          <div class="md:col-span-2 space-y-4">
+            <div><h2 id="modalTitle" class="text-2xl sm:text-3xl font-extrabold text-gradient-primary">Tên phim</h2><p id="modalOriginalTitle" class="text-xs text-gray-400 italic"></p></div>
+            <div id="modalGenres" class="flex flex-wrap items-center gap-2"></div>
+            <div class="flex flex-wrap items-center gap-4 text-xs py-3 px-3 rounded-xl bg-white/5 border border-white/10">
+              <div><span class="text-gray-400">Đánh giá:</span> <strong id="modalRating" class="text-amber-400">—</strong></div><div><span class="text-gray-400">Năm:</span> <span id="modalYear"></span></div><div><span class="text-gray-400">Thời lượng:</span> <span id="modalDuration"></span></div>
+            </div>
+            <div><h4 class="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Nội dung phim</h4><p id="modalDescription" class="text-sm text-gray-300 leading-relaxed"></p></div>
+            <p class="text-xs text-gray-400">Nếu video không chạy, hãy kiểm tra file trong thư mục <code class="text-brand-cyan">videos</code> và trường <code class="text-brand-cyan">videoUrl</code> ở dữ liệu phim.</p>
+          </div>
+        </div>
+        <div class="pt-5 border-t border-white/10">
+          <h3 class="text-base font-bold flex items-center gap-2 mb-4"><i class="fa-solid fa-compact-disc text-brand-cyan"></i> Phim cùng thể loại</h3>
+          <div id="modalRelatedGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-gray-200 dark:border-white/10 py-6 text-center text-xs text-gray-500">
+    © <span id="currentYear"></span> Trọng Hiếu Phim · Trang demo HTML, CSS và JavaScript
+  </footer>
+
+  <script>
+    /*
+      HƯỚNG DẪN THÊM VIDEO:
+      1. Tạo thư mục videos nằm cùng cấp với index.html.
+      2. Chép file MP4 vào thư mục videos.
+      3. Điền đường dẫn tương đối, ví dụ: videoUrl: "videos/endgame.mp4"
+      4. Tên file và chữ hoa/thường phải trùng chính xác.
+    */
+    const moviesData = [
+      {
+        id: 1, title: "Avengers: Endgame", originalTitle: "Avengers: Endgame",
+        genres: ["Hành động", "Viễn tưởng", "Phiêu lưu"], rating: 8.4, year: 2019,
+        duration: "181 phút",
+        poster: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpIgAQCQ7Dm0PYyIa-mSeiPUXYxp8D-VBWxr3CVJZEZw&s=10",
+        backdrop: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop",
+        description: "Sau những sự kiện tàn khốc của Avengers: Infinity War, các Avengers còn lại tập hợp để tìm cách đảo ngược hành động của Thanos và khôi phục sự cân bằng cho vũ trụ.",
+        videoUrl: "videos/endgame.mp4", isHot: true, views: 1250000
+      },
+      {
+        id: 2, title: "Mai", originalTitle: "Mai (2024)",
+        genres: ["Tình cảm", "Tâm lý", "Chính kịch"], rating: 8.7, year: 2024,
+        duration: "131 phút",
+        poster: "https://tse1.mm.bing.net/th/id/OIP.EJqshfPFBKyXhgAt2q_mkQHaKL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        backdrop: "https://tse1.mm.bing.net/th/id/OIP.EJqshfPFBKyXhgAt2q_mkQHaKL?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        description: "Bộ phim Việt Nam xoay quanh cuộc đời Mai, những mối quan hệ, lựa chọn và khát vọng tìm kiếm hạnh phúc của cô.",
+        videoUrl: "videos/mai.mp4", isHot: true, views: 980000
+      },
+      {
+        id: 3, title: "Mưa Đỏ", originalTitle: "Mưa Đỏ",
+        genres: ["Tâm lý", "Chiến tranh", "Lịch sử"], rating: 8.5, year: 2025,
+        duration: "124 phút",
+        poster: "https://tse1.mm.bing.net/th/id/OIP.xL4Ji3Q0jjXBJZoOOYOzFgHaJP?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        backdrop: "https://tse1.mm.bing.net/th/id/OIP.xL4Ji3Q0jjXBJZoOOYOzFgHaJP?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        description: "Câu chuyện điện ảnh về những người lính trẻ, tình đồng đội và ký ức chiến tranh.",
+        videoUrl: "videos/muado.mp4", isHot: true, views: 750000
+      },
+      {
+        id: 4, title: "Naruto", originalTitle: "Naruto",
+        genres: ["Hoạt hình", "Hành động", "Phiêu lưu"], rating: 8.9, year: 2016,
+        duration: "Phim bộ",
+        poster: "https://i.ebayimg.com/images/g/Or8AAOSwEDBdtMUc/s-l1200.jpg",
+        backdrop: "https://i.ebayimg.com/images/g/Or8AAOSwEDBdtMUc/s-l1200.jpg",
+        description: "Naruto là câu chuyện hoạt hình về một ninja trẻ theo đuổi ước mơ và hành trình trưởng thành cùng bạn bè.",
+        videoUrl: "videos/naruto.mp4", isHot: true, views: 110000
+      },
+      {
+        id: 5, title: "Spirited Away (Vùng Đất Linh Hồn)", originalTitle: "Sen to Chihiro no Kamikakushi",
+        genres: ["Hoạt hình", "Phiêu lưu", "Gia đình"], rating: 8.6, year: 2001,
+        duration: "125 phút",
+        poster: "https://thumb.wikimedia.org/wikipedia/vi/thumb/3/30/Spirited_Away_poster.JPG/250px-Spirited_Away_poster.JPG",
+        backdrop: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+        description: "Chihiro vô tình lạc vào thế giới kỳ bí do các vị thần cai quản và phải tìm cách cứu cha mẹ, trở về nhà.",
+        videoUrl: "videos/vungdatlinhhon.mp4", isHot: false, views: 890000
+      },
+      {
+        id: 6, title: "The Dark Knight", originalTitle: "The Dark Knight (Kỵ Sĩ Bóng Đêm)",
+        genres: ["Hành động", "Tội phạm", "Tâm lý"], rating: 9.0, year: 2008,
+        duration: "152 phút",
+        poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_FMjpg_UX1000_.jpg",
+        backdrop: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?q=80&w=1200&auto=format&fit=crop",
+        description: "Batman đối mặt với Joker, kẻ tìm cách đẩy thành phố Gotham vào hỗn loạn và thử thách giới hạn của công lý.",
+        
+        videoUrl: "videos/batman.mp4", isHot: true, views: 1400000
+      },
+      {
+        id: 7, title: "Thái Cổ Thần Vương", originalTitle: "Ancient God Sovereign",
+        genres: ["Cổ trang", "Hành động", "Phiêu lưu"], rating: 8.1, year: 2022,
+        duration: "45 tập",
+        poster: "https://www.iq.com/wiki/_next/image?url=https%3A%2F%2Fm.iqiyipic.com%2Fimage%2F20200907%2Fff%2Fa6%2Fa_100422136_m_600_en_440_608.webp&w=1200&q=75",
+        backdrop: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
+        description: "Một hành trình tu luyện, vượt nghịch cảnh và đối đầu các thế lực mạnh mẽ trong thế giới giả tưởng.",
+        videoUrl: "", isHot: false, views: 520000
+      },
+      {
+        id: 8, title: "Thanh gươm diệt quỷ", originalTitle: "Make Me Tingle",
+        genres: ["Tình cảm", "Lãng mạn", "Hài hước"], rating: 7.8, year: 2023,
+        duration: "115 phút",
+        poster: "https://tse1.mm.bing.net/th/id/OIP.oL-beT6qzWkaFtQNmxon7AHaKV?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        backdrop: "https://tse1.mm.bing.net/th/id/OIP.oL-beT6qzWkaFtQNmxon7AHaKV?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+        description: "Một câu chuyện tình cảm nhẹ nhàng về những khác biệt, tình bạn và cơ hội tìm thấy sự đồng điệu.",
+        videoUrl: "videos/thanhguomdietquy.mp4", isHot: false, views: 430000
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+    let selectedGenres = new Set();
+    let searchQuery = "";
+    let sortBy = "default";
+    let debounceTimer = null;
+    let currentMovieId = null;
+
+    const movieGrid = $("movieGrid");
+    const genreCheckboxContainer = $("genreCheckboxContainer");
+    const searchInput = $("searchInput");
+    const searchInputMobile = $("searchInputMobile");
+    const clearSearchBtn = $("clearSearchBtn");
+    const sortBySelect = $("sortBySelect");
+    const movieCountBadge = $("movieCountBadge");
+    const filterStatusText = $("filterStatusText");
+    const noResultsState = $("noResultsState");
+    const movieModal = $("movieModal");
+    const modalVideo = $("modalVideo");
+    const modalVideoSource = $("modalVideoSource");
+    const modalPlayTrailerBtn = $("modalPlayTrailerBtn");
+    const videoStatus = $("videoStatus");
+
+    function init() {
+      initTheme();
+      createFireflies();
+      renderGenresCheckboxes();
+      renderMovies();
+      renderHeroBanner(moviesData[0]);
+      renderTopTrending();
+      setupEventListeners();
+      $("currentYear").textContent = new Date().getFullYear();
+    }
+
+    function initTheme() {
+      try {
+        const savedTheme = localStorage.getItem("cinema_theme");
+        document.body.classList.toggle("dark", savedTheme !== "light");
+      } catch (_) {
+        document.body.classList.add("dark");
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle("dark");
+      try { localStorage.setItem("cinema_theme", isDark ? "dark" : "light"); } catch (_) {}
+    }
+
+    function createFireflies() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const layer = $("firefly-layer");
+      for (let i = 0; i < 28; i++) {
+        const dot = document.createElement("span");
+        dot.className = "firefly";
+        dot.style.setProperty("--x", `${Math.random() * 100}%`);
+        dot.style.setProperty("--y", `${Math.random() * 100}%`);
+        dot.style.setProperty("--size", `${2 + Math.random() * 3}px`);
+        dot.style.setProperty("--duration", `${3 + Math.random() * 6}s`);
+        dot.style.setProperty("--delay", `${Math.random() * -8}s`);
+        dot.style.setProperty("--move-x", `${-25 + Math.random() * 50}px`);
+        dot.style.setProperty("--move-y", `${-35 + Math.random() * 70}px`);
+        layer.appendChild(dot);
+      }
+    }
+
+    function renderGenresCheckboxes() {
+      const allGenres = [...new Set(moviesData.flatMap(movie => movie.genres))].sort((a,b) => a.localeCompare(b, "vi"));
+      genreCheckboxContainer.innerHTML = allGenres.map((genre, idx) => `
+        <div class="flex items-center">
+          <input type="checkbox" id="genre-${idx}" value="${escapeHtml(genre)}" class="custom-checkbox hidden">
+          <label for="genre-${idx}" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-xs font-semibold text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-all select-none">
+            <span>${escapeHtml(genre)}</span><i class="fa-solid fa-check text-[10px]"></i>
+          </label>
+        </div>`).join("");
+
+      genreCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener("change", () => {
+          cb.checked ? selectedGenres.add(cb.value) : selectedGenres.delete(cb.value);
+          renderMovies();
+        });
+      });
+    }
+
+    function getFilteredMovies() {
+      const query = searchQuery.toLocaleLowerCase("vi");
+      return moviesData.filter(movie => {
+        const searchable = [movie.title, movie.originalTitle, ...movie.genres].join(" ").toLocaleLowerCase("vi");
+        const matchSearch = searchable.includes(query);
+        const matchGenres = selectedGenres.size === 0 || [...selectedGenres].some(g => movie.genres.includes(g));
+        return matchSearch && matchGenres;
+      }).sort((a,b) => {
+        if (sortBy === "rating-desc") return b.rating - a.rating;
+        if (sortBy === "year-desc") return b.year - a.year;
+        if (sortBy === "title-asc") return a.title.localeCompare(b.title, "vi");
+        return a.id - b.id;
+      });
+    }
+
+    function renderMovies() {
+      const filtered = getFilteredMovies();
+      movieCountBadge.textContent = `${filtered.length} / ${moviesData.length} phim`;
+      filterStatusText.textContent = selectedGenres.size || searchQuery
+        ? `Đang lọc ${selectedGenres.size} thể loại${searchQuery ? ` · Từ khóa: "${searchQuery}"` : ""}`
+        : "Đang hiển thị tất cả phim";
+
+      movieGrid.innerHTML = "";
+      noResultsState.classList.toggle("hidden", filtered.length !== 0);
+      noResultsState.classList.toggle("flex", filtered.length === 0);
+
+      filtered.forEach(movie => {
+        const card = document.createElement("article");
+        card.className = "movie-card group cursor-pointer relative rounded-2xl overflow-hidden glass-panel flex flex-col";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Xem chi tiết ${movie.title}`);
+        card.innerHTML = `
+          <div class="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
+            <img src="${escapeHtml(movie.poster)}" alt="${escapeHtml(movie.title)}" class="poster-img w-full h-full object-cover" loading="lazy">
+            <div class="absolute top-2 left-2 flex flex-col gap-1 z-10">
+              ${movie.isHot ? '<span class="badge-gradient-hot text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md">HOT</span>' : ""}
+              <span class="badge-gradient-hd text-white text-[10px] font-bold px-2 py-0.5 rounded-md">HD</span>
+            </div>
+            <span class="absolute top-2 right-2 bg-black/75 text-amber-400 font-bold text-[11px] px-2 py-1 rounded-lg"><i class="fa-solid fa-star"></i> ${movie.rating}</span>
+            <div class="poster-overlay absolute inset-0 bg-black/60 flex items-center justify-center"><span class="w-12 h-12 rounded-full badge-gradient-hot flex items-center justify-center text-white text-lg"><i class="fa-solid fa-play ml-0.5"></i></span></div>
+          </div>
+          <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+            <div><h3 class="font-bold text-sm line-clamp-2 group-hover:text-brand-red">${escapeHtml(movie.title)}</h3><p class="text-[11px] text-gray-400 line-clamp-1 mt-1">${movie.genres.map(escapeHtml).join(" • ")}</p></div>
+            <div class="flex items-center justify-between text-[10px] text-gray-400 pt-2 border-t border-gray-200 dark:border-white/5"><span>${movie.year}</span><span class="text-cyan-500">${escapeHtml(movie.duration)}</span></div>
+          </div>`;
+        card.querySelector("img").addEventListener("error", event => {
+          event.currentTarget.src = "https://placehold.co/400x600/1e293b/ffffff?text=Poster";
+        }, { once: true });
+        card.addEventListener("click", () => openMovieModal(movie.id));
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openMovieModal(movie.id);
+          }
+        });
+        movieGrid.appendChild(card);
+      });
+    }
+
+    function renderTopTrending() {
+      const container = $("topTrendingList");
+      container.innerHTML = [...moviesData].sort((a,b) => b.views - a.views).slice(0,5).map((movie,index) => `
+        <button type="button" data-movie-id="${movie.id}" class="w-full text-left flex items-center gap-3 p-2.5 rounded-2xl hover:bg-white/10 transition-all border border-transparent hover:border-white/10">
+          <span class="w-7 h-7 shrink-0 rounded-xl font-extrabold text-sm flex items-center justify-center ${index===0?'bg-amber-400 text-black':index===1?'bg-slate-300 text-black':'bg-amber-800 text-white'}">${index+1}</span>
+          <img src="${escapeHtml(movie.poster)}" class="w-12 h-16 object-cover rounded-xl shadow" alt="" loading="lazy">
+          <span class="flex-1 min-w-0"><span class="block text-xs font-bold truncate">${escapeHtml(movie.title)}</span><span class="block text-[10px] text-gray-400 truncate">${movie.genres.map(escapeHtml).join(", ")}</span><span class="block mt-1 text-[10px] text-amber-400">⭐ ${movie.rating} <span class="text-gray-400">· ${(movie.views/1000).toFixed(0)}k lượt xem (mẫu)</span></span></span>
+        </button>`).join("");
+      container.querySelectorAll("[data-movie-id]").forEach(button => {
+        button.addEventListener("click", () => openMovieModal(Number(button.dataset.movieId)));
+      });
+    }
+
+    function renderHeroBanner(movie) {
+      $("heroTitle").textContent = movie.title;
+      $("heroDesc").textContent = movie.description;
+      $("heroRating").textContent = movie.rating;
+      $("heroYear").textContent = movie.year;
+      $("heroPoster").src = movie.poster;
+      $("heroBackdrop").src = movie.backdrop;
+      $("heroPlayBtn").onclick = () => openMovieAndPlay(movie.id);
+    }
+
+    function showVideoStatus(message) {
+      videoStatus.textContent = message;
+      videoStatus.classList.remove("hidden");
+    }
+
+    function loadMovieVideo(movie) {
+      modalVideo.pause();
+      modalVideoSource.removeAttribute("src");
+      modalVideo.removeAttribute("src");
+      modalVideo.removeAttribute("poster");
+      modalVideo.load();
+      modalPlayTrailerBtn.classList.remove("hidden");
+      videoStatus.classList.add("hidden");
+      videoStatus.textContent = "";
+
+      if (!movie.videoUrl || !movie.videoUrl.trim()) {
+        showVideoStatus("Phim này chưa được thêm video. Hãy bổ sung đường dẫn trong trường videoUrl.");
+        modalPlayTrailerBtn.classList.add("hidden");
+        return false;
+      }
+
+      modalVideo.poster = movie.poster || "";
+      modalVideoSource.src = movie.videoUrl.trim();
+      modalVideo.load();
+      return true;
+    }
+
+    async function playCurrentMovie() {
+      const movie = moviesData.find(item => item.id === currentMovieId);
+      if (!movie) return;
+      if (!movie.videoUrl || !movie.videoUrl.trim()) {
+        showVideoStatus("Phim này chưa có video. Hãy thêm file vào thư mục videos và cập nhật videoUrl.");
+        return;
+      }
+      try {
+        if (modalVideo.readyState === 0) modalVideo.load();
+        await modalVideo.play();
+        modalPlayTrailerBtn.classList.add("hidden");
+        videoStatus.classList.add("hidden");
+      } catch (error) {
+        showVideoStatus("Không phát được video. Kiểm tra đường dẫn, tên file, codec video và thử mở bằng Live Server.");
+        modalPlayTrailerBtn.classList.remove("hidden");
+      }
+    }
+
+    function openMovieAndPlay(movieId) {
+      openMovieModal(movieId);
+      playCurrentMovie();
+    }
+
+    function openMovieModal(movieId) {
+      const movie = moviesData.find(item => item.id === movieId);
+      if (!movie) return;
+      currentMovieId = movie.id;
+      $("modalTitle").textContent = movie.title;
+      $("modalOriginalTitle").textContent = movie.originalTitle;
+      $("modalRating").textContent = `${movie.rating}/10`;
+      $("modalYear").textContent = movie.year;
+      $("modalDuration").textContent = movie.duration;
+      $("modalDescription").textContent = movie.description;
+      $("modalPoster").src = movie.poster;
+      loadMovieVideo(movie);
+
+      $("modalGenres").innerHTML = movie.genres.map(genre =>
+        `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-400/30">${escapeHtml(genre)}</span>`
+      ).join("");
+
+      const related = moviesData.filter(item =>
+        item.id !== movie.id && item.genres.some(genre => movie.genres.includes(genre))
+      ).slice(0,4);
+      $("modalRelatedGrid").innerHTML = related.length ? related.map(item => `
+        <button type="button" data-related-id="${item.id}" class="text-left group relative rounded-xl overflow-hidden bg-slate-800 border border-white/10 hover:border-brand-red transition-all">
+          <img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)}" class="w-full h-28 object-cover group-hover:scale-105 transition-transform" loading="lazy">
+          <span class="block p-2 bg-slate-900/90"><span class="block text-[11px] font-bold truncate text-white">${escapeHtml(item.title)}</span><span class="text-[9px] text-amber-400">⭐ ${item.rating}</span></span>
+        </button>`).join("") : '<p class="text-sm text-gray-400 col-span-full">Chưa có phim cùng thể loại.</p>';
+
+      $("modalRelatedGrid").querySelectorAll("[data-related-id]").forEach(button => {
+        button.addEventListener("click", () => openMovieModal(Number(button.dataset.relatedId)));
+      });
+
+      movieModal.classList.remove("hidden");
+      movieModal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      $("closeModalBtn").focus();
+    }
+
+    function closeModal() {
+      modalVideo.pause();
+      try { modalVideo.currentTime = 0; } catch (_) {}
+      movieModal.classList.add("hidden");
+      movieModal.classList.remove("flex");
+      document.body.style.overflow = "";
+      currentMovieId = null;
+    }
+
+    function handleSearchInput(event) {
+      searchQuery = event.target.value.trim();
+      searchInput.value = event.target.value;
+      searchInputMobile.value = event.target.value;
+      clearSearchBtn.classList.toggle("hidden", !searchQuery);
+      renderMovies();
+    }
+
+    function debounce(callback, delay = 250) {
+      return (...args) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => callback(...args), delay);
+      };
+    }
+
+    function resetAllFilters() {
+      selectedGenres.clear();
+      searchQuery = "";
+      sortBy = "default";
+      searchInput.value = "";
+      searchInputMobile.value = "";
+      sortBySelect.value = "default";
+      clearSearchBtn.classList.add("hidden");
+      genreCheckboxContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      renderMovies();
+    }
+
+    function setupEventListeners() {
+      const debouncedSearch = debounce(handleSearchInput, 250);
+      searchInput.addEventListener("input", debouncedSearch);
+      searchInputMobile.addEventListener("input", debouncedSearch);
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        searchInputMobile.value = "";
+        searchQuery = "";
+        clearSearchBtn.classList.add("hidden");
+        renderMovies();
+        searchInput.focus();
+      });
+      sortBySelect.addEventListener("change", event => {
+        sortBy = event.target.value;
+        renderMovies();
+      });
+      $("resetFiltersBtn").addEventListener("click", resetAllFilters);
+      $("clearAllFiltersBtn").addEventListener("click", resetAllFilters);
+      $("themeToggleBtn").addEventListener("click", toggleTheme);
+      $("closeModalBtn").addEventListener("click", closeModal);
+      $("modalBackdrop").addEventListener("click", closeModal);
+      modalPlayTrailerBtn.addEventListener("click", playCurrentMovie);
+      modalVideo.addEventListener("playing", () => {
+        modalPlayTrailerBtn.classList.add("hidden");
+        videoStatus.classList.add("hidden");
+      });
+      modalVideo.addEventListener("pause", () => {
+        if (!modalVideo.ended) modalPlayTrailerBtn.classList.remove("hidden");
+      });
+      modalVideo.addEventListener("ended", () => modalPlayTrailerBtn.classList.remove("hidden"));
+      modalVideo.addEventListener("error", () => {
+        if (currentMovieId !== null) {
+          modalPlayTrailerBtn.classList.remove("hidden");
+          showVideoStatus("Video không tải được. Kiểm tra file, đường dẫn và định dạng được trình duyệt hỗ trợ.");
+        }
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !movieModal.classList.contains("hidden")) closeModal();
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+      })[char]);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
+'''
+p.write_text(html, encoding="utf-8")
+print(f"Created {p} ({p.stat().st_size} bytes)")
